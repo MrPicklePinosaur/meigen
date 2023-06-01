@@ -1,0 +1,41 @@
+cabal-version:      2.4
+name:               meigen
+version:            0.1.0.0
+
+-- A short (one-line) description of the package.
+-- synopsis:
+
+-- A longer description of the package.
+-- description:
+
+-- A URL where users can report bugs.
+-- bug-reports:
+
+-- The license under which the package is released.
+-- license:
+author:             Daniel Liu
+maintainer:         mr.picklepinosaur@gmail.com
+
+extra-source-files:
+    CHANGELOG.md
+    README.dm
+
+library
+    exposed-modules: Parser
+
+    build-depends:
+        base ^>=4.16.4.0
+
+    hs-source-dirs:   src
+    default-language: Haskell2010
+
+
+executable meigen
+    main-is:          Main.hs
+
+    build-depends:
+        base ^>=4.16.4.0,
+        meigen
+
+    hs-source-dirs:   app
+    default-language: Haskell2010
