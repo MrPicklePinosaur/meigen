@@ -21,7 +21,13 @@ extra-source-files:
     README.dm
 
 library
-    exposed-modules: Parser
+    exposed-modules:
+        Parser
+        FunctionsAndTypesForParsing
+        Text.Parsec.String.Char
+        Text.Parsec.String.Combinator
+        Text.Parsec.String.Expr
+        Text.Parsec.String.Parsec
 
     build-depends:
         base ^>=4.16.4.0,

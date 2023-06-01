@@ -12,4 +12,28 @@ import FunctionsAndTypesForParsing
 import Text.Parsec.Char (string)
 
 myParser :: Parser ()
-myParser = void $ string "hello"
+myParser = void paren
+
+num1 :: Parser Integer
+num1 = do
+    n <- many1 digit
+    return (read n)
+
+var :: Parser String
+var = do
+    x <- firstChar
+    xs <- many nonFirstChar
+    return (x:xs)
+    where
+        firstChar = satisfy (\c -> isLetter c || c == '_')
+        nonFirstChar = satisfy (\c -> isLetter c || isDigit c || c == '_')
+
+data Paren = Paren Integer
+    deriving (Show, Eq)
+
+paren :: Parser Paren
+paren = do
+    void $ char '('
+    contents <- many1 digit
+    void $ char ')'
+    return (Paren $ read contents)
