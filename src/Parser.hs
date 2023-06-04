@@ -34,7 +34,17 @@ data Expr = Num Integer
     | Paren Expr
     deriving (Show, Eq)
 
-pExpr = try pAdd <|> pTerm
+pExpr = do
+    t <- pTerm
+    maybeAddSuffix t
+        where
+            addSuffix t0 = do
+                void $ lexeme $ char '+'
+                t1 <- pTerm
+                maybeAddSuffix (Add t0 t1)
+            -- attempt to add suffix but return original if it fails (backtrack)
+            maybeAddSuffix t0 = addSuffix t0 <|> return t0
+
 
 pTerm :: Parser Expr
 pTerm = try pNum <|> pVar <|> pParen
