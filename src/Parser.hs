@@ -15,17 +15,33 @@ import qualified Text.Parsec.String.Expr as E
 
 myParser = pExpr
 
+data BinOp = Add | Sub | Mult | Div
+    deriving (Show, Eq)
+
+data UnOp = Pos | Neg
+    deriving (Show, Eq)
+
 data Expr = Num Integer
     | Var String
     | Paren Expr
-    | Add Expr Expr
-    | Mult Expr Expr
+    | Binary BinOp Expr Expr
+    | Unary UnOp Expr
     deriving (Show, Eq)
 
 exprTable :: [[E.Operator Expr]]
-exprTable = [[E.Infix (Mult <$ pChar '*') E.AssocLeft]
-            ,[E.Infix (Add <$ pChar '+') E.AssocLeft]
+exprTable = [unOp Pos '+'
+            ,unOp Neg '-'
+            ,binOp Mult '*' E.AssocLeft
+            ,binOp Div '/' E.AssocLeft
+            ,binOp Add '+' E.AssocLeft
+            ,binOp Sub '-' E.AssocLeft
              ]
+
+binOp :: BinOp -> Char -> E.Assoc -> [E.Operator Expr]
+binOp op ch assoc = [E.Infix (Binary op <$ pChar ch) assoc]
+
+unOp :: UnOp -> Char -> [E.Operator Expr]
+unOp op ch = [E.Prefix (Unary op <$ pChar ch)]
 
 pExpr :: Parser Expr
 pExpr = E.buildExpressionParser exprTable pTerm
