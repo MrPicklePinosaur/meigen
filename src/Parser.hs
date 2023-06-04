@@ -4,20 +4,31 @@ import Text.Parsec (ParseError)
 import Text.Parsec.String (Parser)
 import Text.Parsec.String.Parsec (try)
 import Text.Parsec.String.Char (oneOf, char, digit, letter, satisfy)
-import Text.Parsec.String.Combinator (many1, choice, chainl1)
+import Text.Parsec.String.Combinator (many1, choice, chainl1, between)
 import Control.Applicative ((<$>), (<*>), (<*), (*>), (<|>), many, (<$))
 import Control.Monad (void)
 import Data.Char (isLetter, isDigit)
 import FunctionsAndTypesForParsing
 import Text.Parsec.Char (string)
 
+import qualified Text.Parsec.String.Expr as E
+
 myParser = pExpr
 
 data Expr = Num Integer
     | Var String
-    | Add Expr Expr
     | Paren Expr
+    | Add Expr Expr
+    | Mult Expr Expr
     deriving (Show, Eq)
+
+exprTable :: [[E.Operator Expr]]
+exprTable = [[E.Infix (Mult <$ pChar '*') E.AssocLeft]
+            ,[E.Infix (Add <$ pChar '+') E.AssocLeft]
+             ]
+
+pExpr :: Parser Expr
+pExpr = E.buildExpressionParser exprTable pTerm
 
 -- Always consume trailing whitespace
 lexeme :: Parser a -> Parser a
@@ -26,9 +37,6 @@ lexeme p = p <* whitespace
 -- Consume leading whitespace
 parseWithWhitespace :: Parser a -> String -> Either ParseError a
 parseWithWhitespace p = parseWithEof $ whitespace *> p
-
-pExpr :: Parser Expr
-pExpr = chainl1 pTerm (Add <$ pChar '+')
 
 pTerm :: Parser Expr
 pTerm = pNum <|> pVar <|> pParen pExpr
@@ -52,17 +60,10 @@ pIden = lexeme ((:) <$> firstChar <*> many nonFirstChar)
 
 -- Parse Paren
 pParen :: Parser Expr -> Parser Expr
-pParen inner = Paren <$> (pChar '(' *> inner <* pChar ')')
+pParen inner = Paren <$> between (pChar '(') (pChar ')') inner
 
 pChar :: Char -> Parser Char
 pChar = lexeme <$> char
-
--- Parse Add
-pAdd :: Parser Expr
-pAdd = Add <$> l <*> r
-    where
-        l = pTerm <* pChar '+'
-        r = pExpr
 
 whitespace :: Parser ()
 whitespace = void $ many $ oneOf " \n\t"
