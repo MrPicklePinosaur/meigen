@@ -5,6 +5,7 @@ import Text.Parsec
 import Text.Parsec.String
 import Control.Monad
 
+-- import SimpleParser (myParser, parseWithWhitespace)
 import Parser (myParser, parseWithWhitespace)
 
 main :: IO ()
