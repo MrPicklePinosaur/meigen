@@ -30,7 +30,7 @@ data Fn = Fn {
 }
     deriving (Show, Eq)
 
-data Expr = Lit Literal
+data Expr = Lit Literal | If Expr Expr Expr
     deriving (Show, Eq)
 
 data FnId = String
@@ -57,11 +57,19 @@ pFnId :: Parser String
 pFnId = many1 isKanji
 
 pExpr :: Parser Expr
-pExpr = Lit <$> pLit
+pExpr = try pIf <|> (Lit <$> pLit)
+
+pIf :: Parser Expr
+pIf = do
+    cond <- pExpr
+    void $ pSynString "なら"
+    trueBranch <- pExpr
+    void $ pSynString "そうでなければ"
+    falseBranch <- pExpr
+    return $ If cond trueBranch falseBranch
 
 pLit :: Parser Literal
 pLit = try pString <|> pNum <|> pBoolean <|> pVar
-
 
 pBoolean :: Parser Literal
 pBoolean = Boolean <$> (try pTrue <|> pFalse)
