@@ -18,17 +18,36 @@ import qualified Text.Parsec.String.Expr as E
 import Text.Parsec (optionMaybe)
 import Data.Maybe (fromMaybe)
 import Text.Parsec (option)
+import Text.Parsec (anyChar)
+import Text.Parsec (alphaNum)
 
-data Literal = Num Integer
+
+-- data Expr = 
+
+data Literal = Num Integer | Str String | Boolean Bool
+    deriving (Show, Eq)
 
 -- pNum :: String -> Parser Integer
 -- pNum =
 
--- myParser = kDigit
-myParser = pNum
+myParser :: Parser Literal
+myParser = try pString <|> pNum <|> pBoolean
 
-pNum :: Parser Integer
-pNum = kDigitHundred
+pBoolean :: Parser Literal
+pBoolean = Boolean <$> (try pTrue <|> pFalse)
+
+pTrue :: Parser Bool
+pTrue = string "陽" >> return True
+
+pFalse :: Parser Bool
+pFalse = string "陰" >> return False
+
+pString :: Parser Literal
+pString = Str <$> between (pChar '「') (pChar '」') (many1 alphaNum)
+
+-- TODO, currently doesn't support numbers without a 1s digit
+pNum :: Parser Literal
+pNum = Num <$> kDigitThousand
 
 -- Takes in a 'base' character, 'base' value as well as the next parser to use
 kDigitBuilder :: Char -> Integer -> Parser Integer -> Parser Integer
@@ -41,11 +60,14 @@ kDigitBuilder ch base next = try include <|> skip
             return $ left * base + right
         skip = next
 
+kDigitThousand :: Parser Integer
+kDigitThousand = kDigitBuilder '千' 1000 kDigitHundred
+
 kDigitHundred :: Parser Integer
 kDigitHundred = kDigitBuilder '百' 100 kDigitTen
 
 kDigitTen :: Parser Integer
-kDigitTen = kDigitBuilder '十' 10 kDigitMaybe
+kDigitTen = kDigitBuilder '十' 10 kDigit
 
 kDigitMaybe :: Parser Integer
 kDigitMaybe = try kDigit <|> return 0
