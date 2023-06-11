@@ -21,26 +21,59 @@ import Text.Parsec (option)
 import Text.Parsec (anyChar)
 import Text.Parsec (alphaNum)
 
+-- data Program = 
 
--- data Expr = 
-
-data Literal = Num Integer | Str String | Boolean Bool
+data Fn = Fn {
+    name :: String,
+    argList :: [String],
+    body :: Expr
+}
     deriving (Show, Eq)
 
--- pNum :: String -> Parser Integer
--- pNum =
+data Expr = Lit Literal
+    deriving (Show, Eq)
 
-myParser :: Parser Literal
-myParser = try pString <|> pNum <|> pBoolean
+data FnId = String
+
+data Literal = Num Integer | Str String | Boolean Bool | Var String
+    deriving (Show, Eq)
+
+myParser :: Parser Fn
+myParser = pFn
+
+pFn :: Parser Fn
+pFn = do
+    name <- pFnId
+    void $ pSynString "とは"
+    body <- pExpr
+    void $ pSynString "のことです"
+    return Fn {
+        name = name,
+        argList = [],
+        body = body
+    }
+
+pFnId :: Parser String
+pFnId = many1 isKanji
+
+pExpr :: Parser Expr
+pExpr = Lit <$> pLit
+
+pLit :: Parser Literal
+pLit = try pString <|> pNum <|> pBoolean <|> pVar
+
 
 pBoolean :: Parser Literal
 pBoolean = Boolean <$> (try pTrue <|> pFalse)
 
+pVar :: Parser Literal
+pVar = Var <$> many1 isKatakana
+
 pTrue :: Parser Bool
-pTrue = string "陽" >> return True
+pTrue = pChar '陽' >> return True
 
 pFalse :: Parser Bool
-pFalse = string "陰" >> return False
+pFalse = pChar '陰' >> return False
 
 pString :: Parser Literal
 pString = Str <$> between (pChar '「') (pChar '」') (many1 alphaNum)
@@ -48,6 +81,10 @@ pString = Str <$> between (pChar '「') (pChar '」') (many1 alphaNum)
 -- TODO, currently doesn't support numbers without a 1s digit
 pNum :: Parser Literal
 pNum = Num <$> kDigitThousand
+
+-- Parse a string (for use in langauge syntax)
+pSynString  :: String -> Parser String
+pSynString = string
 
 -- Takes in a 'base' character, 'base' value as well as the next parser to use
 kDigitBuilder :: Char -> Integer -> Parser Integer -> Parser Integer
@@ -104,3 +141,12 @@ pChar = lexeme <$> char
 -- Consume leading whitespace
 parseWithWhitespace :: Parser a -> String -> Either ParseError a
 parseWithWhitespace p = parseWithEof $ whitespace *> p
+
+isKanji :: Parser Char
+isKanji = satisfy (\c -> (0x3400 <= fromEnum c && fromEnum c <= 0x4DB5) || (0x4E00 <= fromEnum c && fromEnum c <= 0x9FCB) || (0xF900 <= fromEnum c && fromEnum c <= 0xFA6A))
+
+isKatakana :: Parser Char
+isKatakana = oneOf "ァ ア ィ イ ゥ ウ ェ エ ォ オ カ ガ キ ギ ク グ ケ ゲ コ ゴ サ ザ シ ジ ス ズ セ ゼ ソ ゾ タ ダ チ ヂ ッ ツ ヅ テ デ ト ド ナ ニ ヌ ネ ノ ハ バ パ ヒ ビ ピ フ ブ プ ヘ ベ ペ ホ ボ ポ マ ミ ム メ モ ャ ヤ ュ ユ ョ ヨ ラ リ ル レ ロ ヮ ワ ヰ ヱ ヲ ン ヴ ヵ ヶ ヷ ヸ ヹ ヺ・ー"
+
+isHiragana :: Parser Char
+isHiragana = oneOf "ぁ あ ぃ い ぅ う ぇ え ぉ お か が き ぎ く ぐ け げ こ ご さ ざ し じ す ず せ ぜ そ ぞ た だ ち ぢ っ つ づ て で と ど な に ぬ ね の は ば ぱ ひ び ぴ ふ ぶ ぷ へ べ ぺ ほ ぼ ぽ ま み む め も ゃ や ゅ ゆ ょ よ ら り る れ ろ ゎ わ ゐ ゑ を ん ゔ ゕ ゖ"

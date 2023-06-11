@@ -21,6 +21,8 @@ cabal v2-run meigen -- <input>
 - [Intro to parsing](https://jakewheat.github.io/intro_to_parsing/)
 - [Write you a haskell](https://smunix.github.io/dev.stephendiehl.com/fun/index-2.html)
 - [Compiler design tutorial](https://iq.opengenus.org/functional-programs/)
+- [Implementing a JIT Compiled Language with Haskell and LLVM](https://www.stephendiehl.com/llvm/)
+- [Tutorial for building a compiler in haskell](https://www.reddit.com/r/haskell/comments/21x8br/tutorial_for_building_a_compiler_in_haskell/)
 
 ### Haskell
 
