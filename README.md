@@ -23,11 +23,11 @@ cabal v2-run meigen -- <input>
 - [Compiler design tutorial](https://iq.opengenus.org/functional-programs/)
 - [Implementing a JIT Compiled Language with Haskell and LLVM](https://www.stephendiehl.com/llvm/)
 - [Tutorial for building a compiler in haskell](https://www.reddit.com/r/haskell/comments/21x8br/tutorial_for_building_a_compiler_in_haskell/)
+- [LLVM kaleidoscope language](https://llvm.org/docs/tutorial/)
 
 ### Haskell
 
 - [Real world Haskell](https://book.realworldhaskell.org/read/)
-
 ### Category theory
 
 - [Category theory for programmers](https://bartoszmilewski.com/2014/10/28/category-theory-for-programmers-the-preface/)
@@ -43,4 +43,4 @@ cabal v2-run meigen -- <input>
     - [website](https://crypto.stanford.edu/~blynn/compiler/)
     - [github](https://github.com/blynn/compiler)
 - [duet](https://github.com/chrisdone/duet)
-
+- [llrl](https://github.com/yubrot/llrl): rust llvm jit

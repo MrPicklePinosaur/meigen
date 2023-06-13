@@ -68,6 +68,14 @@ pIf = do
     falseBranch <- pExpr
     return $ If cond trueBranch falseBranch
 
+-- pLet :: Parser Expr
+-- pLet = do
+--     name <- pIdent
+--     void $ pSynString "は"
+--     body <- pExpr
+--     void $ pSynString "です"
+--     return $ Let name body
+
 pLit :: Parser Literal
 pLit = try pString <|> pNum <|> pBoolean <|> pVar
 
@@ -75,7 +83,10 @@ pBoolean :: Parser Literal
 pBoolean = Boolean <$> (try pTrue <|> pFalse)
 
 pVar :: Parser Literal
-pVar = Var <$> many1 isKatakana
+pVar = Var <$> pIdent
+
+pIdent :: Parser String
+pIdent = many1 isKatakana
 
 pTrue :: Parser Bool
 pTrue = pChar '陽' >> return True
