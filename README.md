@@ -24,10 +24,13 @@ cabal v2-run meigen -- <input>
 - [Implementing a JIT Compiled Language with Haskell and LLVM](https://www.stephendiehl.com/llvm/)
 - [Tutorial for building a compiler in haskell](https://www.reddit.com/r/haskell/comments/21x8br/tutorial_for_building_a_compiler_in_haskell/)
 - [LLVM kaleidoscope language](https://llvm.org/docs/tutorial/)
+- [Adventures in Haskell - Calculator](https://www.youtube.com/watch?v=9AllRc64pVE&list=PL_xuff3BkASMOzBr0hKVKLuSnU4UIinKx&index=1)
+- [Haskell LLVM blog series](https://blog.josephmorag.com/tags/llvm/)
 
 ### Haskell
 
 - [Real world Haskell](https://book.realworldhaskell.org/read/)
+
 ### Category theory
 
 - [Category theory for programmers](https://bartoszmilewski.com/2014/10/28/category-theory-for-programmers-the-preface/)

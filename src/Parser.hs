@@ -21,7 +21,7 @@ import Text.Parsec (option)
 import Text.Parsec (anyChar)
 import Text.Parsec (alphaNum)
 
--- data Program = 
+type Program = [Fn]
 
 type FnId = String
 type VarId = String

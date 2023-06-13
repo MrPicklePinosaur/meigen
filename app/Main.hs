@@ -7,10 +7,11 @@ import Control.Monad
 
 -- import SimpleParser (myParser, parseWithWhitespace)
 import Parser (myParser, parseWithWhitespace)
+import Cli (run)
 
 main :: IO ()
-main = do
-    a <- getArgs
-    case a of
-      [str] -> either print print $ parseWithWhitespace myParser str
-      _ -> error "please pass one argument with the string to parse"
+main = void run
+    -- a <- getArgs
+    -- case a of
+    --   [str] -> either print print $ parseWithWhitespace myParser str
+    --   _ -> error "please pass one argument with the string to parse"
