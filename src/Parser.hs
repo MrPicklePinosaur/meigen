@@ -23,19 +23,27 @@ import Text.Parsec (alphaNum)
 
 -- data Program = 
 
+type FnId = String
+type VarId = String
+
 data Fn = Fn {
-    name :: String,
+    name :: FnId,
     argList :: [String],
-    body :: Expr
+    body :: Stmt
 }
     deriving (Show, Eq)
 
-data Expr = Lit Literal | If Expr Expr Expr
+data Stmt = If Expr Expr Expr | Expr Expr
     deriving (Show, Eq)
 
-data FnId = String
 
-data Literal = Num Integer | Str String | Boolean Bool | Var String
+data BinOp = Add | Sub | Mult | Div
+    deriving (Show, Eq)
+
+data UnOp = Pos | Neg
+    deriving (Show, Eq)
+
+data Expr = Binary BinOp Expr Expr | Num Integer | Str String | Boolean Bool | Var VarId
     deriving (Show, Eq)
 
 myParser :: Parser Fn
@@ -45,7 +53,7 @@ pFn :: Parser Fn
 pFn = do
     name <- pFnId
     void $ pSynString "とは"
-    body <- pExpr
+    body <- pStmt
     void $ pSynString "のことです"
     return Fn {
         name = name,
@@ -56,17 +64,18 @@ pFn = do
 pFnId :: Parser String
 pFnId = many1 isKanji
 
-pExpr :: Parser Expr
-pExpr = try pIf <|> (Lit <$> pLit)
+pStmt :: Parser Stmt
+pStmt = try pIf <|> Expr <$> pExpr
 
-pIf :: Parser Expr
-pIf = do
-    cond <- pExpr
-    void $ pSynString "なら"
-    trueBranch <- pExpr
-    void $ pSynString "そうでなければ"
-    falseBranch <- pExpr
-    return $ If cond trueBranch falseBranch
+exprTable :: [[E.Operator Expr]]
+exprTable = [binOp Add "プラス" E.AssocLeft
+            ,binOp Sub "マイナス" E.AssocLeft
+             ]
+    where
+        binOp :: BinOp -> String -> E.Assoc -> [E.Operator Expr]
+        binOp op sym assoc = [E.Infix (Binary op <$ pSynString sym) assoc]
+        -- unOp :: UnOp -> String -> [E.Operator Expr]
+        -- unOp op sym = [E.Prefix (Unary op <$ pSym sym)]
 
 -- pLet :: Parser Expr
 -- pLet = do
@@ -76,13 +85,25 @@ pIf = do
 --     void $ pSynString "です"
 --     return $ Let name body
 
-pLit :: Parser Literal
-pLit = try pString <|> pNum <|> pBoolean <|> pVar
+pIf :: Parser Stmt
+pIf = do
+    cond <- pExpr
+    void $ pSynString "なら"
+    trueBranch <- pExpr
+    void $ pSynString "そうでなければ"
+    falseBranch <- pExpr
+    return $ If cond trueBranch falseBranch
 
-pBoolean :: Parser Literal
+pExpr :: Parser Expr
+pExpr = E.buildExpressionParser exprTable pTerm
+
+pTerm :: Parser Expr
+pTerm = try pString <|> pNum <|> pBoolean <|> pVar
+
+pBoolean :: Parser Expr
 pBoolean = Boolean <$> (try pTrue <|> pFalse)
 
-pVar :: Parser Literal
+pVar :: Parser Expr
 pVar = Var <$> pIdent
 
 pIdent :: Parser String
@@ -94,11 +115,11 @@ pTrue = pChar '陽' >> return True
 pFalse :: Parser Bool
 pFalse = pChar '陰' >> return False
 
-pString :: Parser Literal
+pString :: Parser Expr
 pString = Str <$> between (pChar '「') (pChar '」') (many1 alphaNum)
 
 -- TODO, currently doesn't support numbers without a 1s digit
-pNum :: Parser Literal
+pNum :: Parser Expr
 pNum = Num <$> kDigitThousand
 
 -- Parse a string (for use in langauge syntax)
