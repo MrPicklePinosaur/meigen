@@ -9,9 +9,8 @@ data Cli = Cli
 
 argparse :: Parser Cli
 argparse = Cli
-    <$> strOption
-        ( long "file"
-        <> metavar "FILENAME"
+    <$> argument str
+        ( metavar "FILENAME"
         <> help "Run from file"
         )
     <*> switch
