@@ -62,7 +62,7 @@ pFn = do
     }
 
 pFnId :: Parser String
-pFnId = many1 isKanji
+pFnId = lexeme $ many1 isKanji
 
 pStmt :: Parser Stmt
 pStmt = try pIf <|> Expr <$> pExpr
@@ -107,7 +107,7 @@ pVar :: Parser Expr
 pVar = Var <$> pIdent
 
 pIdent :: Parser String
-pIdent = many1 isKatakana
+pIdent = lexeme $ many1 isKatakana
 
 pTrue :: Parser Bool
 pTrue = pChar '陽' >> return True
@@ -124,7 +124,7 @@ pNum = Num <$> kDigitThousand
 
 -- Parse a string (for use in langauge syntax)
 pSynString  :: String -> Parser String
-pSynString = string
+pSynString = lexeme <$> string
 
 -- Takes in a 'base' character, 'base' value as well as the next parser to use
 kDigitBuilder :: Char -> Integer -> Parser Integer -> Parser Integer
@@ -146,12 +146,9 @@ kDigitHundred = kDigitBuilder '百' 100 kDigitTen
 kDigitTen :: Parser Integer
 kDigitTen = kDigitBuilder '十' 10 kDigit
 
-kDigitMaybe :: Parser Integer
-kDigitMaybe = try kDigit <|> return 0
-
 -- Return zero if not matched
 kDigit :: Parser Integer
-kDigit = choice $ map _kDigit _digitLookup
+kDigit = lexeme $ choice $ map _kDigit _digitLookup
     where
         _kDigit :: (Char, Integer) -> Parser Integer
         _kDigit (c, val) = satisfy (==c) >> return val
